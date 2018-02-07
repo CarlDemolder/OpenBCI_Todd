@@ -2,10 +2,6 @@
  * This file deals with the general functions of the Board, such as start up, close down, uart, sensors, etc..
  */
 
-// if you want both, you MUST set and clear one of the variables every sample
-boolean addAccelToSD = false; // On writeDataToSDcard() call adds Accel data to SD card write
-boolean addAuxToSD = false; // On writeDataToSDCard() call adds Aux data to SD card write
-
 // Initializing the FTDI function instead of setting up the LED
 // TX is D11
 // RX is D12 
@@ -13,17 +9,29 @@ boolean addAuxToSD = false; // On writeDataToSDCard() call adds Aux data to SD c
 void init_board()
 { 
   ftdi("Initializing board"); 
+  board.setSampleRate(sampling_rate); // Setting Sample Rate of board to user set sampling rate
   
-  board.setSampleRate(0b110); // Setting Sample Rate to 250 Hz
   if(daisy_flag)
   {
     board.daisyPresent = true; // Telling the board that there is a Daisy Board Attached
+    board.attachDaisy();
+    board.activateChannel(9);
+    board.activateChannel(10);
+    board.activateChannel(11);
+    board.activateChannel(12);
+    board.activateChannel(13);
+    board.activateChannel(14);
+    board.activateChannel(15);
+    board.activateChannel(16);
+    ftdi("Activated channels 9-16");
   }
   else
   {
+    board.removeDaisy();  // Remove Daisy Board if attached
     board.daisyPresent = false; // Telling the board that there is not a Daisy Board attached
   }
-  
+
+  // Automatically Activate Channels 1 - 8
   board.activateChannel(1);
   board.activateChannel(2);
   board.activateChannel(3);
@@ -34,9 +42,11 @@ void init_board()
   board.activateChannel(8);
   ftdi("Activated channels 1-8");
 
-//  board.useAccel(true); // Notify the board we want to use accel data
-//  addAuxToSD = false;  // Option to add/remove auxiliary data to stream
-  
+  if(accel_flag)
+  {
+      board.enable_accel(50); // Enable Accelerometer to sample at 50 Hz
+      board.useAccel(true); // Notify the board we want to use accel data
+  }
 }
 
 void init_ftdi()
@@ -76,9 +86,36 @@ void readChannels()
     {
         if(board.channelDataAvailable)
         {
-          board.updateChannelData();  // Read from the ADS(s), store data, set channelDataAvailable flag to false 
+          board.updateChannelData();  // Read from the ADS(s), store data, set channelDataAvailable flag to false
+          readAccel();  // Write Accel Data to SD Card 
           write_sd(); // Write Data to the SD Card depends on sd_flag, sd_state, SDfileOpen 
         }
     }
+}
+
+//  Reads and Checks to see if the Accelerometer has data to be sent
+//  This Data is available at 50 Hz by default. Could be set to 25 Hz
+void readAccel()
+{
+  // Checks to see if user has enabled Accelerometer Data to be written to SD Card
+  if(accel_flag)
+  {
+     // Check to see if accel has new data
+      if(board.curAccelMode == board.ACCEL_MODE_ON) 
+      {
+        if(board.accelHasNewData()) 
+        {
+          // Get new accel data
+          board.accelUpdateAxisData();
+
+          // Tell the SD_Card_Stuff.ino to add accel data in the next write to SD
+          addAccelToSD = true; // Set false after writeDataToSDcard()
+        }
+      } 
+      else 
+      {
+        addAuxToSD = true;
+      }
+  }    
 }
 

@@ -10,12 +10,6 @@
 char fileSize = '0';  // SD file size indicator
 int blockCounter = 0; // Counting the number of blocks written for a given file size
 
-uint32_t BLOCK_COUNT; // Max number of blocks to be written for a file
-// 36.66667 Block Count units per second
-// 11000 = 5 mins
-// 2200 = 1 mins
-//  BLOCK_COUNT = 512; 
-
 // Arduino SD Card File and Parameters
 SdFile openfile;  // want to put this before setup...
 Sd2Card card(&board.spi,SD_SS);// SPI needs to be init'd before here
@@ -39,7 +33,7 @@ uint32_t minWriteTime;  // and shortest write time
 uint32_t t;        // used to measure total file write time
 
 byte fileTens, fileOnes;  // enumerate succesive files on card and store number in EEPROM
-char currentFileName[] = "00BCI00.TXT"; // file name of text file that will be stored on the SD Card. It will enumerate in hex 00 - FF
+char currentFileName[] = "00EGG00.TXT"; // file name of text file that will be stored on the SD Card. It will enumerate in hex 00 - FF
 prog_char elapsedTime[] PROGMEM = {"\n%Total time mS:\n"};  // 17
 prog_char minTime[] PROGMEM = {  "%min Write time uS:\n"};  // 20
 prog_char maxTime[] PROGMEM = {  "%max Write time uS:\n"};  // 20
@@ -59,7 +53,6 @@ void init_sd()
   if(sd_flag)
   {
     ftdi("Initializing SD Card...");
-    BLOCK_COUNT = 11000; // Setting Block count to roughly 5 minute
     SDfileOpen = setupSDcard(); // Setting up the SD card
     if(SDfileOpen)
     {
@@ -142,6 +135,8 @@ boolean setupSDcard()
   overruns = 0;
   maxWriteTime = 0;
   minWriteTime = 65000;
+
+  // Reset Block and Byte Counter to ensure proper Data Storage on SD Card
   byteCounter = 0;  // counter from 0 - 512
   blockCounter = 0; // counter from 0 - BLOCK_COUNT;
   
@@ -162,7 +157,12 @@ void write_sd()
 {
   if(sd_flag && sd_state && SDfileOpen)
   {
+    sd_writing = true;  // If the following parameters are true, then the board is writing to the SD Card
     writeDataToSDcard(SDsampleCounter++);
+  }
+  else
+  {
+    sd_writing = false; // SD card parameters haven't been met, so the Board is not writing to the SD Card
   }
 }
 
@@ -180,7 +180,10 @@ void writeDataToSDcard(byte sampleNumber)
       if(currentChannel == 6)
       {
         addComma = false;
-        if(addAuxToSD || addAccelToSD) {addComma = true;}  // format CSV
+        if(addAuxToSD || addAccelToSD) 
+        {
+          addComma = true;
+        }  // format CSV
       }
     }
   }
@@ -192,7 +195,10 @@ void writeDataToSDcard(byte sampleNumber)
       if(currentChannel == 6)
       {
         addComma = false;
-        if(addAuxToSD || addAccelToSD) {addComma = true;}  // format CSV
+        if(addAuxToSD || addAccelToSD) 
+        {
+          addComma = true;
+        }  // format CSV
       }
     }
   }
@@ -256,16 +262,15 @@ void writeCache()
     if(blockCounter == BLOCK_COUNT-1)
     {
       t = millis() - t;
-//      board.streamStop();
-//      board.disable_accel();
-//      writeFooter();
     }
     if(blockCounter == BLOCK_COUNT)
     {
       close_sd(); // Close the SD Card and reset State Variables: SDfileOpen
-      BLOCK_COUNT = 0;  // Reset the Block Count = 0
-      fileCounter++;  // Increment the file Counter
-      init_sd();  // Initialize and Create another SD Card
+      if(block_rollover_flag)
+      {
+          fileCounter++;  // Increment the file Counter
+          init_sd();  // Initialize and Create another SD Card
+      }
     }
 }
 

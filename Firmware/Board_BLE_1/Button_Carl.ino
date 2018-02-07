@@ -47,7 +47,6 @@ void button_interrupt()
         close_sd(); // Closing SD Card Card
         board.streamStop(); // Stop Streaming from the ADS1299
         led_state = false;  // Turn Off Blinking LED
-//        toggle_led(1);  // Turn LED Steady On   
         sd_state = false;    // Disable the user from writing to SD card
         ftdi("User Unpressed Button");
       }
