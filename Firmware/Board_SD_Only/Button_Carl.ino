@@ -43,14 +43,20 @@ void button_interrupt()
       }
       else
       {
-        data_recording = false; // Disable Data Recording
-        close_sd(); // Closing SD Card Card
-        board.streamStop(); // Stop Streaming from the ADS1299
-        led_state = false;  // Turn Off Blinking LED
-        sd_state = false;    // Disable the user from writing to SD card
-        ftdi("User Unpressed Button");
+//          button_unpressed();
       }
       button_pushed = false; // Resetting Button Pushed
   }
   lastPushButtonValue = pushButtonValue; // keep track of the changes!
 }
+
+void button_unpressed()
+{
+      data_recording = false; // Disable Data Recording
+      close_sd(); // Closing SD Card Card
+      board.streamStop(); // Stop Streaming from the ADS1299
+      led_state = false;  // Turn Off Blinking LED
+      sd_state = false;    // Disable the user from writing to SD card
+      ftdi("User Unpressed Button");
+}
+

@@ -19,7 +19,7 @@ byte sampling_rate = 0b110; // Byte value used to set the sampling rate
  * 16000 Hz = 0b000
  */
 
-uint32_t BLOCK_COUNT = 2200; // Max number of blocks to be written for a file, i.e. setting the recording time of the board
+uint32_t BLOCK_COUNT = 3122000; // Max number of blocks to be written for a file, i.e. setting the recording time of the board
 /* 36.6667 Block Count Units per Second (Theoretrical)
  * BLOCK_COUNT = 11000; Time = 5 mins
  * BLOCK_COUNT = 33000; Time = 15 mins
@@ -32,12 +32,12 @@ uint32_t BLOCK_COUNT = 2200; // Max number of blocks to be written for a file, i
  */
  
 //Flags set by user to enable certain functions
-boolean ftdi_flag = false;           // Boolean used to determine if an FDTI serial to UART converter is attached to the board
-boolean sd_flag = true;             // Boolean used to enable or disable SD Writing and Recording
-boolean ble_flag = false;           // Boolean used to enable or disable BLE 
-boolean daisy_flag = true;         // Boolean used to enable or disable Daisy Board Integration
-boolean block_rollover_flag = true; // Boolean used to enable Block writing roll-over, i.e. continue recording onto the next block  
-boolean accel_flag = true;          // Boolean used to enable Accelerometer Data to be recorded and written to SD Card
+boolean ftdi_flag = false;            // Boolean used to determine if an FDTI serial to UART converter is attached to the board
+boolean sd_flag = true;               // Boolean used to enable or disable SD Writing and Recording
+boolean ble_flag = false;             // Boolean used to enable or disable BLE 
+boolean daisy_flag = false;           // Boolean used to enable or disable Daisy Board Integration
+boolean block_rollover_flag = false;  // Boolean used to enable Block writing roll-over, i.e. continue recording onto the next block  
+boolean accel_flag = true;            // Boolean used to enable Accelerometer Data to be recorded and written to SD Card
 
 //Variables used across Added Files
 boolean data_recording = false;     // Boolean used to determine if the user wants to start recording data 

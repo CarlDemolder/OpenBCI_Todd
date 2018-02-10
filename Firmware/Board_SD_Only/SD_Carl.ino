@@ -242,6 +242,7 @@ void writeCache()
       {
         ftdi("block write fail");
       }
+      button_unpressed();
     }   // write the block
     board.csHigh(SD_SS);  // release spi
     tw = micros() - tw;      // stop block write timer
