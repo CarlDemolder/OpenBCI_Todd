@@ -19,7 +19,7 @@ byte sampling_rate = 0b110; // Byte value used to set the sampling rate
  * 16000 Hz = 0b000
  */
 
-uint32_t BLOCK_COUNT = 3122000; // Max number of blocks to be written for a file, i.e. setting the recording time of the board
+uint32_t BLOCK_COUNT = 11000; // Max number of blocks to be written for a file, i.e. setting the recording time of the board
 /* 36.6667 Block Count Units per Second (Theoretrical)
  * BLOCK_COUNT = 11000; Time = 5 mins
  * BLOCK_COUNT = 33000; Time = 15 mins
